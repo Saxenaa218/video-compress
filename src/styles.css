@@ -62,9 +62,9 @@ header h1 {
   margin-bottom: 10px;
 }
 
-.supported-formats {
-  font-size: 0.9rem !important;
-  color: #64748b !important;
+.drop-zone p.supported-formats {
+  font-size: 0.9rem;
+  color: #64748b;
 }
 
 .file-info,
@@ -182,8 +182,9 @@ footer {
   font-size: 0.9rem;
 }
 
-.hidden {
-  display: none !important;
+[hidden],
+.container .hidden {
+  display: none;
 }
 
 /* Animation for processing */

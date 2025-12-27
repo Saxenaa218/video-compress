@@ -7,6 +7,13 @@ const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 // Set FFmpeg path
 ffmpeg.setFfmpegPath(ffmpegPath);
 
+// Compression constants
+const TARGET_SIZE_MB = 9;
+const AUDIO_BITRATE_KBPS = 128;
+const MIN_VIDEO_BITRATE_KBPS = 100;
+const MAXRATE_MULTIPLIER = 1.5;
+const BUFSIZE_MULTIPLIER = 2;
+
 let mainWindow;
 
 function createWindow() {
@@ -97,27 +104,26 @@ function getVideoDuration(inputPath) {
 
 // Compress video to target size (9 MB)
 ipcMain.handle('compress-video', async (event, inputPath, outputPath) => {
-  const TARGET_SIZE_MB = 9;
   const TARGET_SIZE_BITS = TARGET_SIZE_MB * 8 * 1024 * 1024;
   
   try {
     const duration = await getVideoDuration(inputPath);
     
     // Calculate target bitrate (total bits / duration in seconds)
-    // Reserve 128kbps for audio
-    const audioBitrate = 128 * 1024; // 128 kbps in bits
-    const videoBitrate = Math.floor((TARGET_SIZE_BITS / duration) - audioBitrate);
+    // Reserve audio bitrate from total
+    const audioBitrateBits = AUDIO_BITRATE_KBPS * 1024;
+    const videoBitrate = Math.floor((TARGET_SIZE_BITS / duration) - audioBitrateBits);
     
     // Convert to kbps for ffmpeg
-    const videoBitrateKbps = Math.max(100, Math.floor(videoBitrate / 1024));
+    const videoBitrateKbps = Math.max(MIN_VIDEO_BITRATE_KBPS, Math.floor(videoBitrate / 1024));
     
     return new Promise((resolve, reject) => {
       ffmpeg(inputPath)
         .outputOptions([
           `-b:v ${videoBitrateKbps}k`,
-          '-b:a 128k',
-          '-maxrate ' + (videoBitrateKbps * 1.5) + 'k',
-          '-bufsize ' + (videoBitrateKbps * 2) + 'k',
+          `-b:a ${AUDIO_BITRATE_KBPS}k`,
+          '-maxrate ' + (videoBitrateKbps * MAXRATE_MULTIPLIER) + 'k',
+          '-bufsize ' + (videoBitrateKbps * BUFSIZE_MULTIPLIER) + 'k',
           '-preset medium',
           '-movflags +faststart'
         ])
