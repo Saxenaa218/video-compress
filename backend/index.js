@@ -8,6 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
+const rateLimit = require('express-rate-limit');
 
 // Initialize database
 const Database = require('better-sqlite3');
@@ -47,17 +48,53 @@ db.exec(`
 
 const app = express();
 const server = http.createServer(app);
+
+// CORS configuration - restrict origins in production
+const ALLOWED_ORIGINS = process.env.CORS_ORIGINS 
+  ? process.env.CORS_ORIGINS.split(',') 
+  : ['http://localhost:3000', 'http://localhost:19006', 'http://localhost:8081'];
+
 const io = new Server(server, {
   cors: {
-    origin: '*',
+    origin: process.env.NODE_ENV === 'production' ? ALLOWED_ORIGINS : '*',
     methods: ['GET', 'POST']
   }
 });
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? ALLOWED_ORIGINS : '*'
+}));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Rate limiting configuration
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 auth requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many authentication attempts, please try again later.' }
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 20, // Limit each IP to 20 uploads per hour
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many file uploads, please try again later.' }
+});
+
+// Apply general rate limiter to all routes
+app.use(generalLimiter);
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, 'uploads');
@@ -76,13 +113,21 @@ const storage = multer.diskStorage({
   }
 });
 
+// File size limit: 10MB default, configurable via environment
+const MAX_FILE_SIZE = parseInt(process.env.MAX_FILE_SIZE_MB || '10', 10) * 1024 * 1024;
+
 const upload = multer({ 
   storage,
-  limits: { fileSize: 50 * 1024 * 1024 } // 50MB limit
+  limits: { fileSize: MAX_FILE_SIZE }
 });
 
-// JWT secret
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
+// JWT secret - require proper configuration in production
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET && process.env.NODE_ENV === 'production') {
+  console.error('FATAL: JWT_SECRET environment variable is required in production');
+  process.exit(1);
+}
+const jwtSecret = JWT_SECRET || 'development-secret-change-in-production';
 
 // Auth middleware
 const authMiddleware = (req, res, next) => {
@@ -92,7 +137,7 @@ const authMiddleware = (req, res, next) => {
   }
   
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, jwtSecret);
     req.userId = decoded.userId;
     next();
   } catch (error) {
@@ -101,7 +146,7 @@ const authMiddleware = (req, res, next) => {
 };
 
 // Auth routes
-app.post('/api/auth/register', async (req, res) => {
+app.post('/api/auth/register', authLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     
@@ -119,7 +164,7 @@ app.post('/api/auth/register', async (req, res) => {
     
     db.prepare('INSERT INTO users (id, username, password) VALUES (?, ?, ?)').run(userId, username, hashedPassword);
     
-    const token = jwt.sign({ userId }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId }, jwtSecret, { expiresIn: '7d' });
     
     res.json({ token, userId, username });
   } catch (error) {
@@ -128,7 +173,7 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/auth/login', authLimiter, async (req, res) => {
   try {
     const { username, password } = req.body;
     
@@ -146,7 +191,7 @@ app.post('/api/auth/login', async (req, res) => {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
     
-    const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ userId: user.id }, jwtSecret, { expiresIn: '7d' });
     
     res.json({ token, userId: user.id, username: user.username });
   } catch (error) {
@@ -274,7 +319,7 @@ app.post('/api/messages', authMiddleware, (req, res) => {
 });
 
 // File upload route
-app.post('/api/upload', authMiddleware, upload.single('file'), (req, res) => {
+app.post('/api/upload', authMiddleware, uploadLimiter, upload.single('file'), (req, res) => {
   try {
     const { receiverId } = req.body;
     

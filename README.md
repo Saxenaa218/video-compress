@@ -146,17 +146,25 @@ The server will run on `http://localhost:3000`
 
 ### Backend
 - `PORT` - Server port (default: 3000)
-- `JWT_SECRET` - Secret key for JWT tokens (change in production!)
+- `JWT_SECRET` - Secret key for JWT tokens (**required** in production)
+- `NODE_ENV` - Set to 'production' in production environment
+- `CORS_ORIGINS` - Comma-separated list of allowed origins (required in production)
+- `MAX_FILE_SIZE_MB` - Maximum file upload size in MB (default: 10)
+
+### Mobile (Expo)
+- `EXPO_PUBLIC_API_URL` - Backend API URL (e.g., 'http://192.168.1.100:3000')
 
 ## Security Considerations
 
 For production deployment:
-1. Change the JWT_SECRET to a strong, random value
-2. Use HTTPS for all communications
-3. Implement rate limiting
-4. Add input validation and sanitization
-5. Use a production database (PostgreSQL, MySQL)
-6. Store files in cloud storage (AWS S3, Google Cloud Storage)
+1. Set `JWT_SECRET` to a strong, random value (required in production)
+2. Set `NODE_ENV=production` to enable production security settings
+3. Configure `CORS_ORIGINS` to only allow your mobile app's origin
+4. Use HTTPS for all communications
+5. Implement rate limiting
+6. Add input validation and sanitization
+7. Use a production database (PostgreSQL, MySQL)
+8. Store files in cloud storage (AWS S3, Google Cloud Storage)
 
 ## License
 

@@ -1,8 +1,11 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Change this to your server IP address when testing on device
-const API_URL = 'http://localhost:3000';
+// Configuration: Change API_URL based on your environment
+// - For iOS Simulator: 'http://localhost:3000'
+// - For Android Emulator: 'http://10.0.2.2:3000'
+// - For physical device: Use your computer's IP (e.g., 'http://192.168.1.100:3000')
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -24,7 +27,7 @@ export const authService = {
     const response = await api.post('/api/auth/register', { username, password });
     const { token, userId } = response.data;
     await AsyncStorage.setItem('token', token);
-    await AsyncStorage.setItem('userId', userId);
+    await AsyncStorage.setItem('userId', String(userId));
     await AsyncStorage.setItem('username', username);
     return response.data;
   },
@@ -33,7 +36,7 @@ export const authService = {
     const response = await api.post('/api/auth/login', { username, password });
     const { token, userId } = response.data;
     await AsyncStorage.setItem('token', token);
-    await AsyncStorage.setItem('userId', userId);
+    await AsyncStorage.setItem('userId', String(userId));
     await AsyncStorage.setItem('username', username);
     return response.data;
   },
