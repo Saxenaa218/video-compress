@@ -220,7 +220,7 @@ export default function DashboardPage() {
 
   const copyIframeCode = async (embedUrl: string, title: string) => {
     const fullUrl = `${window.location.origin}${embedUrl}`;
-    const iframeCode = `<iframe src="${fullUrl}" width="640" height="360" frameborder="0" allowfullscreen title="${title}"></iframe>`;
+    const iframeCode = `<iframe src="${fullUrl}" width="640" height="360" style="border:0" allowfullscreen title="${title}"></iframe>`;
     await navigator.clipboard.writeText(iframeCode);
     setSuccess('Iframe code copied to clipboard!');
   };

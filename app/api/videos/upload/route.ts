@@ -6,6 +6,17 @@ import { writeFile, mkdir } from 'fs/promises';
 import path from 'path';
 import { existsSync } from 'fs';
 
+// Maximum file size: 100MB
+const MAX_FILE_SIZE = 100 * 1024 * 1024;
+
+// Allowed MIME types and their corresponding extensions
+const ALLOWED_TYPES: Record<string, string[]> = {
+  'video/mp4': ['.mp4'],
+  'video/webm': ['.webm'],
+  'video/ogg': ['.ogg', '.ogv'],
+  'video/quicktime': ['.mov'],
+};
+
 export async function POST(request: Request) {
   const session = await getSession();
 
@@ -35,11 +46,28 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate file type
-    const allowedTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
-    if (!allowedTypes.includes(file.type)) {
+    // Validate file size
+    if (file.size > MAX_FILE_SIZE) {
+      return NextResponse.json(
+        { error: 'File too large. Maximum size is 100MB' },
+        { status: 400 }
+      );
+    }
+
+    // Validate MIME type
+    if (!Object.keys(ALLOWED_TYPES).includes(file.type)) {
       return NextResponse.json(
         { error: 'Invalid file type. Allowed types: mp4, webm, ogg, mov' },
+        { status: 400 }
+      );
+    }
+
+    // Validate file extension matches MIME type
+    const fileExt = path.extname(file.name).toLowerCase();
+    const allowedExtensions = ALLOWED_TYPES[file.type];
+    if (!allowedExtensions.includes(fileExt)) {
+      return NextResponse.json(
+        { error: 'File extension does not match file type' },
         { status: 400 }
       );
     }
@@ -50,9 +78,8 @@ export async function POST(request: Request) {
       await mkdir(uploadsDir, { recursive: true });
     }
 
-    // Generate unique filename
-    const ext = path.extname(file.name) || '.mp4';
-    const filename = `${uuidv4()}${ext}`;
+    // Generate unique filename with validated extension
+    const filename = `${uuidv4()}${fileExt}`;
     const filepath = path.join(uploadsDir, filename);
 
     // Write file

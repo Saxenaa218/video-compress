@@ -68,7 +68,6 @@ export default function EmbedPage({ params }: Props) {
       <div className="flex-1 flex items-center justify-center">
         <video
           controls
-          autoPlay
           className="max-w-full max-h-[80vh] w-auto h-auto"
         >
           <source src={video.videoUrl} type="video/mp4" />
