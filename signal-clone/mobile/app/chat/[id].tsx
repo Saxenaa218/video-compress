@@ -118,6 +118,20 @@ export default function ChatScreen() {
     return decryptMessageContentWithKey(message, secretKey, otherUser.publicKey);
   };
 
+  /**
+   * Get the correct public key for decryption based on who sent the message.
+   * When I sent the message, I need the recipient's public key to decrypt.
+   * When they sent the message, I need their public key.
+   */
+  const getPublicKeyForDecryption = (message: Message, otherUserPublicKey: string): string => {
+    if (message.senderId === user?.id) {
+      // I sent this message - use the other user's public key
+      return otherUserPublicKey;
+    }
+    // They sent this message - use their public key (from message sender or fallback)
+    return message.sender?.publicKey || otherUserPublicKey;
+  };
+
   const decryptMessageContentWithKey = async (
     message: Message,
     key: string | null,
@@ -126,8 +140,7 @@ export default function ChatScreen() {
     if (!key) return null;
 
     try {
-      // Determine who sent the message to use the correct public key
-      const publicKeyToUse = message.senderId === user?.id ? senderPublicKey : message.sender?.publicKey || senderPublicKey;
+      const publicKeyToUse = getPublicKeyForDecryption(message, senderPublicKey);
       
       return decryptMessage(
         message.encryptedContent,

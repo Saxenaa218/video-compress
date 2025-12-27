@@ -15,13 +15,22 @@ class ApiService {
     });
 
     // Add auth token to requests
-    this.client.interceptors.request.use(async (config) => {
-      const token = await secureStorage.getToken();
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    this.client.interceptors.request.use(
+      async (config) => {
+        try {
+          const token = await secureStorage.getToken();
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (error) {
+          console.error('Failed to get auth token:', error);
+        }
+        return config;
+      },
+      (error) => {
+        return Promise.reject(error);
       }
-      return config;
-    });
+    );
   }
 
   // Auth endpoints
