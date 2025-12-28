@@ -3,6 +3,28 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+type MessageWithUsers = {
+  id: string;
+  content: string;
+  imageUrl: string | null;
+  read: boolean;
+  createdAt: Date;
+  senderId: string;
+  receiverId: string;
+  sender: {
+    id: string;
+    username: string;
+    name: string | null;
+    image: string | null;
+  };
+  receiver: {
+    id: string;
+    username: string;
+    name: string | null;
+    image: string | null;
+  };
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -42,9 +64,9 @@ export async function GET() {
     });
 
     // Group by conversation partner
-    const conversationsMap = new Map();
+    const conversationsMap = new Map<string, { partner: MessageWithUsers["sender"]; lastMessage: MessageWithUsers; unreadCount: number }>();
     
-    messages.forEach((message) => {
+    messages.forEach((message: MessageWithUsers) => {
       const partnerId = message.senderId === session.user.id
         ? message.receiverId
         : message.senderId;
@@ -63,7 +85,9 @@ export async function GET() {
       // Count unread messages
       if (message.receiverId === session.user.id && !message.read) {
         const conv = conversationsMap.get(partnerId);
-        conv.unreadCount += 1;
+        if (conv) {
+          conv.unreadCount += 1;
+        }
       }
     });
 

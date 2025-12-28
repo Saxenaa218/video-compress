@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
+type UserWithCount = {
+  id: string;
+  username: string;
+  name: string | null;
+  image: string | null;
+  _count: {
+    followers: number;
+  };
+};
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -32,7 +42,7 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({
-      users: users.map((user) => ({
+      users: users.map((user: UserWithCount) => ({
         ...user,
         followersCount: user._count.followers,
       })),

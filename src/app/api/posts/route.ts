@@ -3,6 +3,36 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+type PostWithRelations = {
+  id: string;
+  caption: string | null;
+  imageUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
+  userId: string;
+  user: {
+    id: string;
+    username: string;
+    name: string | null;
+    image: string | null;
+  };
+  likes: { userId: string }[];
+  comments: Array<{
+    id: string;
+    content: string;
+    createdAt: Date;
+    user: {
+      id: string;
+      username: string;
+      image: string | null;
+    };
+  }>;
+  _count: {
+    likes: number;
+    comments: number;
+  };
+};
+
 export async function GET(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -65,10 +95,10 @@ export async function GET(request: NextRequest) {
       nextCursor = nextItem!.id;
     }
 
-    const postsWithLikeStatus = posts.map((post) => ({
+    const postsWithLikeStatus = posts.map((post: PostWithRelations) => ({
       ...post,
       isLiked: session?.user?.id
-        ? post.likes.some((like) => like.userId === session.user.id)
+        ? post.likes.some((like: { userId: string }) => like.userId === session.user.id)
         : false,
       likesCount: post._count.likes,
       commentsCount: post._count.comments,

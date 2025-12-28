@@ -57,7 +57,7 @@ export async function GET(
     return NextResponse.json({
       ...post,
       isLiked: session?.user?.id
-        ? post.likes.some((like) => like.userId === session.user.id)
+        ? post.likes.some((like: { userId: string }) => like.userId === session.user.id)
         : false,
       likesCount: post._count.likes,
       commentsCount: post._count.comments,

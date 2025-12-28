@@ -1,36 +1,140 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Instagram Clone
+
+A full-featured Instagram clone built with Next.js 14, TypeScript, Tailwind CSS, Prisma, and NextAuth.js.
+
+## Features
+
+- 🔐 **Authentication** - Sign up, login, and logout with secure credentials
+- 📝 **Posts** - Create, view, like, and comment on posts
+- 📷 **Image Upload** - Upload images for posts, stories, and profile pictures
+- 👤 **User Profiles** - View profiles, edit bio, and see post grids
+- 👥 **Follow System** - Follow and unfollow other users
+- 📰 **Feed** - View posts from users you follow with infinite scroll
+- 📖 **Stories** - Create and view ephemeral stories (24 hours)
+- 💬 **Direct Messages** - Send and receive private messages
+- 🔔 **Notifications** - Get notified about likes, comments, and new followers
+- 🔍 **Search** - Find users by username or name
+- 📱 **Responsive Design** - Works on desktop and mobile devices
+
+## Tech Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Database**: SQLite with Prisma ORM
+- **Authentication**: NextAuth.js
+- **Icons**: Lucide React
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd video-compress
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Initialize the database:
+```bash
+npx prisma migrate dev
+```
 
-## Learn More
+5. Run the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Open [http://localhost:3000](http://localhost:3000) with your browser
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### First Steps
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Register a new account at `/register`
+2. Login at `/login`
+3. Start creating posts and following other users!
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+src/
+├── app/                    # Next.js App Router pages
+│   ├── api/               # API routes
+│   ├── login/             # Login page
+│   ├── register/          # Registration page
+│   ├── profile/[username] # User profile pages
+│   ├── post/[postId]      # Individual post pages
+│   ├── create/            # Create post/story page
+│   ├── search/            # Search page
+│   ├── messages/          # Direct messages
+│   ├── notifications/     # Notifications page
+│   ├── stories/           # Stories viewer
+│   └── accounts/          # Account settings
+├── components/            # Reusable React components
+│   ├── layout/           # Layout components (Navbar, MainLayout)
+│   ├── posts/            # Post-related components
+│   └── stories/          # Story components
+├── lib/                   # Utility functions
+│   ├── prisma.ts         # Prisma client instance
+│   └── auth.ts           # NextAuth configuration
+├── providers/            # React context providers
+└── types/                # TypeScript type definitions
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Register new user
+- `POST /api/auth/[...nextauth]` - NextAuth endpoints
+
+### Posts
+- `GET /api/posts` - Get feed posts
+- `POST /api/posts` - Create new post
+- `GET /api/posts/[postId]` - Get single post
+- `DELETE /api/posts/[postId]` - Delete post
+- `POST /api/posts/[postId]/like` - Like post
+- `DELETE /api/posts/[postId]/like` - Unlike post
+- `GET /api/posts/[postId]/comments` - Get comments
+- `POST /api/posts/[postId]/comments` - Add comment
+
+### Users
+- `GET /api/users/[username]` - Get user profile
+- `PATCH /api/users/[username]` - Update profile
+- `GET /api/users/[username]/posts` - Get user posts
+- `POST /api/users/[username]/follow` - Follow user
+- `DELETE /api/users/[username]/follow` - Unfollow user
+- `GET /api/users/search` - Search users
+
+### Stories
+- `GET /api/stories` - Get stories
+- `POST /api/stories` - Create story
+
+### Messages
+- `GET /api/messages` - Get conversations
+- `GET /api/messages/[conversationId]` - Get messages
+- `POST /api/messages/[conversationId]` - Send message
+
+### Notifications
+- `GET /api/notifications` - Get notifications
+- `PATCH /api/notifications` - Mark as read
+
+### Upload
+- `POST /api/upload` - Upload image
+
+## License
+
+MIT

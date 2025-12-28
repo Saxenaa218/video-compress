@@ -3,6 +3,26 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
+type StoryUser = {
+  id: string;
+  username: string;
+  image: string | null;
+};
+
+type StoryWithUser = {
+  id: string;
+  imageUrl: string;
+  createdAt: Date;
+  expiresAt: Date;
+  userId: string;
+  user: StoryUser;
+};
+
+type GroupedStory = {
+  user: StoryUser;
+  stories: StoryWithUser[];
+};
+
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
@@ -46,17 +66,17 @@ export async function GET() {
     });
 
     // Group stories by user
-    const groupedStories = stories.reduce((acc, story) => {
+    const groupedStories: Record<string, GroupedStory> = {};
+    stories.forEach((story: StoryWithUser) => {
       const userId = story.userId;
-      if (!acc[userId]) {
-        acc[userId] = {
+      if (!groupedStories[userId]) {
+        groupedStories[userId] = {
           user: story.user,
           stories: [],
         };
       }
-      acc[userId].stories.push(story);
-      return acc;
-    }, {} as Record<string, { user: typeof stories[0]["user"]; stories: typeof stories }>);
+      groupedStories[userId].stories.push(story);
+    });
 
     return NextResponse.json(Object.values(groupedStories));
   } catch (error) {
