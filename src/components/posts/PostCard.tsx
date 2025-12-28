@@ -92,7 +92,7 @@ export default function PostCard({ post, onLike }: PostCardProps) {
                 />
               ) : (
                 <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-sm font-semibold">
-                  {post.user.username[0].toUpperCase()}
+                  {post.user.username?.[0]?.toUpperCase() || "?"}
                 </div>
               )}
             </div>

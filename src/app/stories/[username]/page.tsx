@@ -195,7 +195,7 @@ export default function StoriesPage({ params }: { params: Promise<{ username: st
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-sm font-semibold text-white">
-                  {currentGroup.user.username[0].toUpperCase()}
+                  {currentGroup.user.username?.[0]?.toUpperCase() || "?"}
                 </div>
               )}
             </div>

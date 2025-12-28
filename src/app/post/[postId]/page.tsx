@@ -181,7 +181,7 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-sm font-semibold">
-                        {post.user.username[0].toUpperCase()}
+                        {post.user.username?.[0]?.toUpperCase() || "?"}
                       </div>
                     )}
                   </div>
@@ -207,7 +207,7 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-sm font-semibold">
-                            {post.user.username[0].toUpperCase()}
+                            {post.user.username?.[0]?.toUpperCase() || "?"}
                           </div>
                         )}
                       </div>
@@ -242,7 +242,7 @@ export default function PostPage({ params }: { params: Promise<{ postId: string 
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-sm font-semibold">
-                            {c.user.username[0].toUpperCase()}
+                            {c.user.username?.[0]?.toUpperCase() || "?"}
                           </div>
                         )}
                       </div>

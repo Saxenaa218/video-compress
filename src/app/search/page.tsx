@@ -118,7 +118,7 @@ export default function SearchPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-gray-500">
-                      {user.username[0].toUpperCase()}
+                      {user.username?.[0]?.toUpperCase() || "?"}
                     </div>
                   )}
                 </div>

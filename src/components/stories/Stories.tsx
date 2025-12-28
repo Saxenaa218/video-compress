@@ -119,7 +119,7 @@ function StoryItem({ group }: { group: StoryGroup }) {
             />
           ) : (
             <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center text-lg font-semibold">
-              {group.user.username[0].toUpperCase()}
+              {group.user.username?.[0]?.toUpperCase() || "?"}
             </div>
           )}
         </div>

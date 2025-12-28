@@ -81,7 +81,7 @@ export default function MessagesPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-xl font-semibold text-gray-500">
-                      {conv.partner.username[0].toUpperCase()}
+                      {conv.partner.username?.[0]?.toUpperCase() || "?"}
                     </div>
                   )}
                 </div>

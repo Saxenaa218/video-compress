@@ -111,7 +111,7 @@ export default function NotificationsPage() {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-gray-500">
-                      {notification.actor.username[0].toUpperCase()}
+                      {notification.actor.username?.[0]?.toUpperCase() || "?"}
                     </div>
                   )}
                   <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">

@@ -122,7 +122,7 @@ export default function ConversationPage({ params }: { params: Promise<{ convers
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-lg font-semibold text-gray-500">
-                    {partner.username[0].toUpperCase()}
+                    {partner.username?.[0]?.toUpperCase() || "?"}
                   </div>
                 )}
               </div>
@@ -168,7 +168,7 @@ export default function ConversationPage({ params }: { params: Promise<{ convers
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-xs font-semibold text-gray-500">
-                            {message.sender.username[0].toUpperCase()}
+                            {message.sender.username?.[0]?.toUpperCase() || "?"}
                           </div>
                         )}
                       </div>

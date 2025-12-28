@@ -143,7 +143,7 @@ export default function ProfilePage({ params }: { params: Promise<{ username: st
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-4xl md:text-6xl font-semibold text-gray-400">
-                  {profile.username[0].toUpperCase()}
+                  {profile.username?.[0]?.toUpperCase() || "?"}
                 </div>
               )}
             </div>
