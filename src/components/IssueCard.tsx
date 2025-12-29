@@ -21,7 +21,7 @@ export function IssueCard({ issue }: IssueCardProps) {
         <div className="flex items-start justify-between gap-4">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className={cn('text-lg', getTypeIcon(issue.type))}>
+              <span className="text-lg">
                 {getTypeIcon(issue.type)}
               </span>
               <h3 className="font-medium text-gray-900 truncate">
