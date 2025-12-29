@@ -8,7 +8,6 @@ import Link from 'next/link';
 interface VideoPlayerProps {
   src: string;
   title: string;
-  movieId: number;
 }
 
 interface QualityLevel {
@@ -88,7 +87,9 @@ export default function VideoPlayer({ src, title }: VideoPlayerProps) {
       });
 
       return () => {
-        hls.destroy();
+        if (hlsRef.current) {
+          hlsRef.current.destroy();
+        }
       };
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       // Native HLS support (Safari)

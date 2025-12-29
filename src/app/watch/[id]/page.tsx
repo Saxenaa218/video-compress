@@ -39,7 +39,6 @@ export default async function WatchPage({ params }: WatchPageProps) {
       <VideoPlayer
         src={stream.url}
         title={movie.title}
-        movieId={movieId}
       />
     </div>
   );
