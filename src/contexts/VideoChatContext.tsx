@@ -59,6 +59,12 @@ export function VideoChatProvider({
   const webRTCRef = useRef<WebRTCService | null>(null);
   const signalingRef = useRef<SignalingService | null>(null);
   const remoteStreamsRef = useRef<Map<string, MediaStream>>(new Map());
+  const localStreamRef = useRef<MediaStream | null>(null);
+
+  // Keep localStreamRef in sync with roomState.localStream
+  useEffect(() => {
+    localStreamRef.current = roomState.localStream;
+  }, [roomState.localStream]);
 
   // Initialize services
   useEffect(() => {
@@ -272,14 +278,19 @@ export function VideoChatProvider({
         const screenStream = await webRTCRef.current.getScreenShare();
         await webRTCRef.current.replaceVideoTrack(screenStream);
         
-        // Handle screen share ending
-        screenStream.getVideoTracks()[0].onended = () => {
-          webRTCRef.current?.stopScreenShare();
-          if (roomState.localStream) {
-            webRTCRef.current?.replaceVideoTrack(roomState.localStream);
-          }
-          setRoomState(prev => ({ ...prev, isScreenSharing: false, screenStream: null }));
-        };
+        // Handle screen share ending - use ref to avoid stale closure
+        const videoTrack = screenStream.getVideoTracks()[0];
+        if (videoTrack) {
+          videoTrack.onended = () => {
+            webRTCRef.current?.stopScreenShare();
+            // Use ref to get the latest localStream value
+            const currentLocalStream = localStreamRef.current;
+            if (currentLocalStream) {
+              webRTCRef.current?.replaceVideoTrack(currentLocalStream);
+            }
+            setRoomState(prev => ({ ...prev, isScreenSharing: false, screenStream: null }));
+          };
+        }
 
         setRoomState(prev => ({ ...prev, isScreenSharing: true, screenStream }));
       }

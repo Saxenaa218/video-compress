@@ -194,15 +194,20 @@ export class WebRTCService {
   // Replace video track with screen share or camera
   async replaceVideoTrack(newStream: MediaStream): Promise<void> {
     const newVideoTrack = newStream.getVideoTracks()[0];
+    if (!newVideoTrack) return;
+    
+    const replacePromises: Promise<void>[] = [];
     
     this.peerConnections.forEach((peerConnection) => {
       const sender = peerConnection.getSenders().find(
         s => s.track?.kind === 'video'
       );
       if (sender) {
-        sender.replaceTrack(newVideoTrack);
+        replacePromises.push(sender.replaceTrack(newVideoTrack));
       }
     });
+    
+    await Promise.all(replacePromises);
   }
 
   // Close a specific peer connection
