@@ -50,7 +50,7 @@ export const AppProvider = ({ children }) => {
           ...post,
           comments: [
             ...post.comments,
-            { id: String(Date.now()), user: user, text },
+            { id: String(Date.now()), user: user, text, timestamp: new Date().toISOString() },
           ],
         };
       }

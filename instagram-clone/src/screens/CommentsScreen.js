@@ -56,7 +56,9 @@ const CommentsScreen = ({ navigation, route }) => {
           {' '}{item.text}
         </Text>
         <View style={styles.commentActions}>
-          <Text style={styles.commentTime}>2h</Text>
+          <Text style={styles.commentTime}>
+            {item.timestamp ? formatTime(item.timestamp) : 'Recently'}
+          </Text>
           <TouchableOpacity>
             <Text style={styles.commentReply}>Reply</Text>
           </TouchableOpacity>
