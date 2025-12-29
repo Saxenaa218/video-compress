@@ -1,4 +1,4 @@
-import { CalendarEvent } from './types';
+import { CalendarEvent } from '../lib/types';
 
 export const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
