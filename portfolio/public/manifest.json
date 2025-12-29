@@ -1,0 +1,16 @@
+{
+  "name": "John Developer Portfolio",
+  "short_name": "Portfolio",
+  "description": "Portfolio website of John Developer - Full Stack Developer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
