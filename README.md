@@ -13,11 +13,11 @@ A full-stack web application for uploading and compressing videos, built with th
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React, TypeScript, Tailwind CSS
+- **Frontend**: Next.js 16 (App Router), React, TypeScript, Tailwind CSS
 - **Backend**: Next.js API Routes
 - **Database**: MongoDB with Mongoose
-- **Video Processing**: FFmpeg
-- **File Handling**: Multer, UUID
+- **Video Processing**: FFmpeg (via child_process)
+- **File Handling**: Next.js FormData, UUID
 
 ## Prerequisites
 
