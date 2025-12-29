@@ -55,6 +55,7 @@ export const useSnakeGame = (settings: GameSettings = DEFAULT_SETTINGS) => {
 
   const directionRef = useRef<Direction>(gameState.direction);
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
+  const currentSpeedRef = useRef<number>(settings.initialSpeed);
   const eatSoundRef = useRef<HTMLAudioElement | null>(null);
   const gameOverSoundRef = useRef<HTMLAudioElement | null>(null);
 
@@ -192,12 +193,21 @@ export const useSnakeGame = (settings: GameSettings = DEFAULT_SETTINGS) => {
       return;
     }
 
-    const speed = calculateSpeed(gameState.level);
-    gameLoopRef.current = setInterval(moveSnake, speed);
+    const newSpeed = calculateSpeed(gameState.level);
+    
+    // Only recreate interval if speed changed or no interval exists
+    if (gameLoopRef.current === null || currentSpeedRef.current !== newSpeed) {
+      if (gameLoopRef.current) {
+        clearInterval(gameLoopRef.current);
+      }
+      currentSpeedRef.current = newSpeed;
+      gameLoopRef.current = setInterval(moveSnake, newSpeed);
+    }
 
     return () => {
       if (gameLoopRef.current) {
         clearInterval(gameLoopRef.current);
+        gameLoopRef.current = null;
       }
     };
   }, [gameState.isGameOver, gameState.isPaused, gameState.level, moveSnake, calculateSpeed]);
