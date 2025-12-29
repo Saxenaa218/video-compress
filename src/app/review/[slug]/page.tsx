@@ -55,13 +55,14 @@ export default function ReviewPage({ params }: { params: Promise<{ slug: string 
         } else {
           setError(data.error || "Topic not found");
         }
-    } catch {
-      setError("Failed to load topic");
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchTopic();
+      } catch {
+        setError("Failed to load topic");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchTopic();
   }, [slug]);
 
   const startRecording = async () => {

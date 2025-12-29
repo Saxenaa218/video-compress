@@ -53,24 +53,25 @@ export default function TopicDetails({ params }: { params: Promise<{ id: string 
           fetch(`/api/topics/${id}/testimonials`),
         ]);
 
-      const topicData = await topicRes.json();
-      const testimonialsData = await testimonialsRes.json();
+        const topicData = await topicRes.json();
+        const testimonialsData = await testimonialsRes.json();
 
-      if (topicRes.ok) {
-        setTopic(topicData.topic);
+        if (topicRes.ok) {
+          setTopic(topicData.topic);
+        }
+        if (testimonialsRes.ok) {
+          setTestimonials(testimonialsData.testimonials);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
-      if (testimonialsRes.ok) {
-        setTestimonials(testimonialsData.testimonials);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
+    };
+    
+    if (status === "authenticated") {
+      fetchData();
     }
-  };
-  if (status === "authenticated") {
-    fetchData();
-  }
   }, [status, id]);
 
   const copyLink = () => {
