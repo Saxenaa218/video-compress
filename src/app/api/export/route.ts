@@ -1,6 +1,18 @@
 import { NextResponse } from "next/server";
 import { marked } from "marked";
 
+// Helper function to escape HTML entities
+function escapeHtml(text: string): string {
+  const htmlEntities: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  };
+  return text.replace(/[&<>"']/g, (char) => htmlEntities[char]);
+}
+
 // POST convert markdown to HTML
 export async function POST(request: Request) {
   try {
@@ -16,6 +28,9 @@ export async function POST(request: Request) {
 
     // Convert markdown to HTML
     const html = await marked(content);
+    
+    // Escape the document name to prevent XSS
+    const safeDocumentName = escapeHtml(String(documentName));
 
     if (format === "html") {
       const fullHtml = `<!DOCTYPE html>
@@ -23,7 +38,7 @@ export async function POST(request: Request) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${documentName}</title>
+  <title>${safeDocumentName}</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;

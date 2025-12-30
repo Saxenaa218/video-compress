@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Document } from "@/lib/types";
 import {
   FileText,
-  FolderPlus,
   FilePlus,
   Trash2,
   Menu,

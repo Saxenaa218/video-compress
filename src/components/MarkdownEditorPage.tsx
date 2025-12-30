@@ -90,6 +90,7 @@ export default function MarkdownEditorPage() {
   // Fetch documents on mount
   useEffect(() => {
     fetchDocuments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchDocuments = async () => {
@@ -126,7 +127,7 @@ export default function MarkdownEditorPage() {
     setContent(newContent);
   }, []);
 
-  const handleSave = async (createVersion = true) => {
+  const handleSave = useCallback(async (createVersion = true) => {
     if (!selectedDocument || !hasUnsavedChanges) return;
 
     setIsSaving(true);
@@ -153,7 +154,7 @@ export default function MarkdownEditorPage() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [selectedDocument, hasUnsavedChanges, content]);
 
   const handleRename = async (name: string) => {
     if (!selectedDocument) return;
@@ -347,7 +348,7 @@ export default function MarkdownEditorPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [hasUnsavedChanges, isFullPreview]);
+  }, [handleSave, isFullPreview]);
 
   if (isLoading) {
     return (
