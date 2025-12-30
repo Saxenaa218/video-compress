@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Bookmark {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  url         String
+  favicon     String?
+  isPinned    Boolean  @default(false)
+  isArchived  Boolean  @default(false)
+  viewCount   Int      @default(0)
+  lastVisited DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tags        BookmarkTag[]
+
+  @@index([isPinned])
+  @@index([isArchived])
+  @@index([createdAt])
+  @@index([lastVisited])
+  @@index([viewCount])
+}
+
+model Tag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  color     String   @default("#6366f1")
+  createdAt DateTime @default(now())
+  bookmarks BookmarkTag[]
+}
+
+model BookmarkTag {
+  bookmark   Bookmark @relation(fields: [bookmarkId], references: [id], onDelete: Cascade)
+  bookmarkId String
+  tag        Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId      String
+
+  @@id([bookmarkId, tagId])
+}
